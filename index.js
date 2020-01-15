@@ -4,18 +4,25 @@ const mongoose = require("mongoose")
 const multer = require("multer")
 const AWS = require('aws-sdk');
 const uuid = require("uuid/v4")
+const cors = require("cors")
 
 const {awsID, awsSecret, awsS3BucketName} = require("./config/").aws
 
 const mongoURL = require("./config").mongoURL
 const app = express()
-const port = 3000
+const port = process.env.PORT || 3000
 
 const login = require("./src/routes/auth/login")
 const createUser = require("./src/routes/auth/createUser")
 
+const corsOptions = {
+    origin: "https://online-fir-system.herokuapp.com/",
+    optionsSuccessStatus: 200 
+}
+
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
+app.use(cors(corsOption))
 
 mongoose.connect(mongoURL, { useFindAndModify: false, useUnifiedTopology: true, useNewUrlParser: true })
     .then(()=> console.log("Database Connected!"))
