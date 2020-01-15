@@ -49,7 +49,7 @@ router.get('/verifyCode', (req, res) => {
                         body = {
                             status: verification_check.status,
                             message: "Phone Number is Verified!",
-                            ...snapshot,
+                            ...snapshot._doc,
                             accessToken
                         }
                     } else {
