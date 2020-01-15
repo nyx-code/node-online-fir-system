@@ -22,7 +22,7 @@ const corsOptions = {
 
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
-app.use(cors(corsOption))
+app.use(cors(corsOptions))
 
 mongoose.connect(mongoURL, { useFindAndModify: false, useUnifiedTopology: true, useNewUrlParser: true })
     .then(()=> console.log("Database Connected!"))
