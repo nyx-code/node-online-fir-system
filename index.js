@@ -2,21 +2,19 @@ const express = require("express")
 const bodyParser = require("body-parser")
 const mongoose = require("mongoose")
 const multer = require("multer")
-const AWS = require('aws-sdk');
-const uuid = require("uuid/v4")
 const cors = require("cors")
 
-const {awsID, awsSecret, awsS3BucketName} = require("./config/").aws
-
+const uploadFile = require("./src/controller/uploadFile")
 const mongoURL = require("./config").mongoURL
 const app = express()
 const port = process.env.PORT || 3000
 
 const login = require("./src/routes/auth/login")
 const createUser = require("./src/routes/auth/createUser")
+const user = require("./src/routes/app/user")
 
 const corsOptions = {
-    origin: "https://online-fir-system.herokuapp.com/",
+    origin: "localhost:8125/",
     optionsSuccessStatus: 200 
 }
 
@@ -35,12 +33,7 @@ const storage = multer.memoryStorage({
     }
 });
 
-const upload = multer({ storage: storage }).single('image');
-
-const s3 = new AWS.S3({
-    accessKeyId: awsID,
-    secretAccessKey: awsSecret
-});
+const upload = multer({ storage: storage }).single('file');
     
 
 app.get('/', (req,res) => {
@@ -50,27 +43,11 @@ app.get('/', (req,res) => {
     res.send(body)
 })
 
-app.post('/upload', upload, (req,res) => {
-    let myImage = req.file.originalname.split(".")
-    const imageType = myImage[myImage.length - 1]
-
-    const params = {
-       Bucket: awsS3BucketName,
-       Key: `${uuid()}.${imageType}`,
-       Body: req.file.buffer
-    };
-
-    s3.upload(params, (error, data) => {
-        if (error) {
-            res.status(500).send(error)
-        }else{
-            res.status(200).json(data)
-        }
-    });
-})
+app.post('/upload', upload, uploadFile)
 
 app.use('/login', login)
 app.use('/createUser', createUser)
+app.use('/user', user)
 
 app.listen(port, () => {
     console.log(`Server is up at port: ${port}`)
