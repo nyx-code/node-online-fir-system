@@ -13,14 +13,19 @@ const login = require("./src/routes/auth/login")
 const createUser = require("./src/routes/auth/createUser")
 const user = require("./src/routes/app/user")
 
-const corsOptions = {
-    origin: "localhost:8125/",
-    optionsSuccessStatus: 200 
-}
+// const corsOptions = {
+//     origin: "localhost:8125/",
+//     optionsSuccessStatus: 200 
+// }
 
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
-app.use(cors(corsOptions))
+
+app.use((req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+  });
 
 mongoose.connect(mongoURL, { useFindAndModify: false, useUnifiedTopology: true, useNewUrlParser: true })
     .then(()=> console.log("Database Connected!"))
