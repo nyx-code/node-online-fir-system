@@ -10,7 +10,7 @@ const uploadFile = require("../../controller/uploadFile")
 const router = express.Router()
 
 router.post('/:id/createFIR',isLoggedIn, (req, res) => {
-    console.log(JSON.stringyfy(req.body))
+    console.log(JSON.stringify(req.body))
     pdf.create(generateDoc("Nilesh Kadam", "12","34","123456789")).toBuffer((err,buffer) => {
         if(err) {
             res.status(500).send(err.message)
