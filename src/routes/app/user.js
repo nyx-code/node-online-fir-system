@@ -10,14 +10,21 @@ const uploadFile = require("../../controller/uploadFile")
 
 const router = express.Router()
 
-router.post('/createFIR', (req, res) => {
+router.post('/:id/createFIR', (req, res) => {
 
     const fir = new Fir({
+        userId: req.params.id,
         ...req.body
     })
 
     fir.save().then((data) => {
-        res.status(200).json(data)
+        User.findByIdAndUpdate(req.params.id,{
+            $push:{firList: data._id}
+        }).then(() => {
+            res.status(200).json(data)
+        }).catch(error => {
+            res.status(500).json(error.message)
+        })
     })
     .catch(error => {
         res.status(500).send(error.message)
