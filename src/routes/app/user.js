@@ -4,35 +4,51 @@ const pdf = require("html-pdf")
 const Fir = require("../../models/FIR")
 const User = require("../../models/User")
 const isLoggedIn = require("../../middleware/")
-const uuid = require("uuid/v4")
 const generateDoc = require("../../controller/generateDoc")
 const uploadFile = require("../../controller/uploadFile")
 
 const router = express.Router()
 
-router.post('/createFIR', (req, res) => {
+router.post('/:id/createFIR',isLoggedIn, (req, res) => {
+    pdf.create(generateDoc("Nilesh Kadam", "12","34","123456789")).toBuffer((err,buffer) => {
+        if(err) {
+            res.status(500).send(err.message)
+        }
+      
+        uploadFile({
+            file: {
+                buffer,
+                originalname: "temp.pdf"
+            }
+        },res, true).then((value) => {
 
-    const fir = new Fir({
-        ...req.body
-    })
+            let firData = {
+                userId: req.params.id,
+                url: value.Location,
+                ...req.body,
+            }
 
-    fir.save().then((data) => {
-        res.status(200).json(data)
-    })
-    .catch(error => {
-        res.status(500).send(error.message)
-    })
-    // pdf.create(generateDoc(req.body)).toBuffer((err,buffer) => {
-    //   if(err) {
-    //     res.status(500).send(err.message)
-    //   }
-    //     uploadFile({
-    //         file: {
-    //             buffer,
-    //             originalname: "temp.pdf"
-    //         }
-    //     },res)
-    // });
+            firData.victimDetails.userId = req.params.id
+
+            const fir = new Fir(firData)
+            
+            fir.save().then((data) => {
+                User.findByIdAndUpdate(req.params.id,{
+                    $push:{firList: data._id}
+                }).then(() => {
+                    res.status(200).json(data)
+                }).catch(error => {
+                    res.status(500).json(error.message)
+                })
+            })
+            .catch(error => {
+                res.status(500).send(error.message)
+            })
+        }).catch(error => {
+            res.status(500).json(error.message)
+        })
+    });
+    
 })
 
 module.exports = router

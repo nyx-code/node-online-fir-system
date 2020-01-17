@@ -34,7 +34,11 @@ const UserSchema = new Schema({
     aadharBackImage: {
         type: String,
         required: true
-    }
+    },
+    firList: [{
+        type: Schema.Types.ObjectId,
+        ref: 'fir'
+    }]
 })
 
 const User = mongoose.model('users', UserSchema)
